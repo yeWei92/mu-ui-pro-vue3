@@ -16,14 +16,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # 不能设置 registry-url：它会在 runner 的 .npmrc 写入
+      # //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}，使 npm publish
+      # 改用该 token 认证而跳过 OIDC，最终以 E404 失败。
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          registry-url: 'https://registry.npmjs.org'
 
-      # trusted publishing 要求 npm >= 11.5.1
+      # trusted publishing 要求 npm >= 11.5.1；固定 11.x 而非 latest，
+      # 避免 npm 12 的 node engines 门槛在 CI 上触发 EBADENGINE。
       - name: 升级 npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11
 
       - name: 安装依赖
         run: npm ci
