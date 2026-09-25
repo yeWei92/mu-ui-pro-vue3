@@ -1,0 +1,130 @@
+.mu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    color 0.3s,
+    border-color 0.3s;
+  outline: none;
+
+  // 仅键盘聚焦时显示焦点环，鼠标点击不出现轮廓
+  &:focus-visible {
+    outline: 2px solid var(--mu-color-primary);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  // 按下反馈：在悬停底色上再压暗一档，各类型通用
+  &:active:not(:disabled) {
+    filter: brightness(0.9);
+  }
+
+  // 加载指示器：随按钮文字色与字号缩放
+  &__loading {
+    flex-shrink: 0;
+    width: 1em;
+    height: 1em;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: mu-button-loading-rotate 0.8s linear infinite;
+  }
+
+  // 图标不参与压缩
+  :deep(svg) {
+    flex-shrink: 0;
+  }
+
+  // 彩色类型：底色 + 反白文字
+  @each $type in primary, success, warning, danger, info {
+    &--#{$type} {
+      background-color: var(--mu-button-#{$type}-bg);
+      color: var(--mu-color-white);
+
+      &:hover:not(:disabled) {
+        background-color: var(--mu-button-#{$type}-hover-bg);
+      }
+    }
+  }
+
+  &--default {
+    background-color: var(--mu-button-default-bg);
+    border-color: var(--mu-button-default-border);
+    color: var(--mu-button-default-text);
+
+    &:hover:not(:disabled) {
+      color: var(--mu-button-default-hover-text);
+      border-color: var(--mu-button-default-hover-border);
+      background-color: var(--mu-button-default-hover-bg);
+    }
+  }
+
+  // 扁平样式：透明底 + 类型色描边，悬停填充实色。
+  // 写在类型块之后，依靠同层特异性顺序将背景置为透明。
+  &--plain {
+    background-color: transparent;
+
+    @each $type in primary, success, warning, danger, info {
+      &.mu-button--#{$type} {
+        color: var(--mu-color-#{$type});
+        border-color: var(--mu-color-#{$type});
+
+        &:hover:not(:disabled) {
+          background-color: var(--mu-button-#{$type}-bg);
+          color: var(--mu-color-white);
+        }
+      }
+    }
+  }
+
+  &--large {
+    padding: 12px 20px;
+    font-size: 16px;
+  }
+
+  &--small {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  &--round {
+    border-radius: 20px;
+  }
+
+  // 圆形：padding 归零由宽高驱动，尺寸与 size 联动。
+  // 写在尺寸块之后，以同层特异性顺序覆盖其 padding。
+  &--circle {
+    padding: 0;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+
+    &.mu-button--large {
+      width: 44px;
+      height: 44px;
+    }
+
+    &.mu-button--small {
+      width: 28px;
+      height: 28px;
+    }
+  }
+}
+
+@keyframes mu-button-loading-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}

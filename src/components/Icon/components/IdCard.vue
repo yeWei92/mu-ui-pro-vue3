@@ -1,0 +1,12 @@
+<template>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1em" height="1em" fill="none" :style="{ color, width: size, height: size }">
+    <rect x="2" y="3" width="20" height="18" rx="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <circle cx="8" cy="10" r="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+    <path d="M8 15a4 4 0 0 0-4 4M14 8h5M14 12h4M14 16h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  </svg>
+</template>
+
+<script setup lang="ts">
+  defineOptions({ name: 'MuIconIdCard' });
+  withDefaults(defineProps<{ size?: string | number; color?: string }>(), { size: '1em' });
+</script>
