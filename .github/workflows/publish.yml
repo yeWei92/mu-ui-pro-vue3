@@ -16,17 +16,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 不能设置 registry-url：它会在 runner 的 .npmrc 写入
-      # //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}，使 npm publish
-      # 改用该 token 认证而跳过 OIDC，最终以 E404 失败。
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
 
       # trusted publishing 要求 npm >= 11.5.1；固定 11.x 而非 latest，
       # 避免 npm 12 的 node engines 门槛在 CI 上触发 EBADENGINE。
       - name: 升级 npm
         run: npm install -g npm@11
+
+      # setup-node 会写入 //registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}。
+      # 该行使 npm 判定「凭证已配置」而跳过 OIDC 交换，registry 遂以
+      # E404/ENEEDAUTH 拒绝。保留 registry 条目、仅删掉 _authToken 行，
+      # npm 才会回退到 trusted publishing。
+      - name: 清理 .npmrc 的 _authToken 行以启用 OIDC
+        run: |
+          npmrc="${NPM_CONFIG_USERCONFIG:-$HOME/.npmrc}"
+          echo "npm=$(npm -v) node=$(node -v)"
+          echo "NPM_CONFIG_USERCONFIG=${NPM_CONFIG_USERCONFIG:-未设置}"
+          echo "OIDC 端点: ${ACTIONS_ID_TOKEN_REQUEST_URL:+已注入}"
+          if [ -f "$npmrc" ]; then
+            sed -i '/_authToken/d' "$npmrc"
+          else
+            echo "registry=https://registry.npmjs.org/" > "$npmrc"
+          fi
+          echo "--- $npmrc ---"
+          cat "$npmrc"
 
       - name: 安装依赖
         run: npm ci
